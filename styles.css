@@ -44,6 +44,7 @@ header {
     align-items: center;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* Ombre douce pour le header */
     transition: box-shadow 0.3s ease-in-out;
+    margin-bottom: 0; /* Enlever la marge du bas */
 }
 
 /* Ajouter la marge colorée en haut du header */
@@ -93,8 +94,11 @@ main {
     align-items: center;
     justify-content: center;
     padding: 20px; /* Ajout d'un peu d'espacement interne pour le main */
+    padding-top: 20px;  /* Ajouter un padding top pour compenser le header */
     box-sizing: border-box;
     overflow-y: auto; /* Permet de défiler si nécessaire */
+    max-height: calc(100vh - 15vh - 50px); /* Calcule l'espace restant entre header et footer */
+    overflow: hidden;  /* Empêche tout défilement supplémentaire */
 }
 
 /* Conteneur général pour les boîtes */
@@ -151,7 +155,7 @@ button {
     display: inline-block;
     margin-top: 15px;
     padding: 12px 20px;
-    background-color: var(--header-bg);
+    background-color: var(--primary-color);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -160,7 +164,7 @@ button {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 button:hover {
-    background-color: var(--header-bg);
+    background-color: var(--primary-hover);
     transform: scale(1.02);
 }
 
@@ -212,6 +216,7 @@ footer:hover {
 
     header {
         height: auto;  /* Réduire la hauteur du header sur mobile */
+        margin-bottom: 10px;  /* Réduire la marge en bas du header */
     }
 
     h1 {
