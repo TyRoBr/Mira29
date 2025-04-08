@@ -1,6 +1,6 @@
 /* public/styles.css */
 
-/* Variables CSS pour faciliter le thème */
+/* Variables CSS pour faciliter le thème et la mise en page adaptative */
 :root {
     --primary-color: #4682B4;
     --primary-hover: #4682B4;
@@ -11,10 +11,14 @@
     --box-border: #ddd;
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     --form-bg: #fff;
-    --header-bg: #4682B4;  /* Couleur du header */
+    --header-bg: #4682B4;
+
+    /* Hauteurs fixes pour header et footer en desktop */
+    --header-height: 15vh;
+    --footer-height: 50px;
 }
 
-/* Assurer que la page tient dans la fenêtre */
+/* Réinitialisations globales */
 html, body {
     margin: 0;
     padding: 0;
@@ -22,61 +26,56 @@ html, body {
     font-family: 'Roboto', sans-serif;
     background-color: var(--background-color);
     color: var(--text-color);
-    overflow-x: hidden; /* Empêche le défilement horizontal */
+    overflow: hidden; /* On souhaite éviter les scrolls */
 }
 
-/* Mise en page en flex pour répartir verticalement */
+/* Disposition globale en flex vertical */
 body {
     display: flex;
     flex-direction: column;
-    height: 100vh;  /* La hauteur du body est 100% de la hauteur de la fenêtre */
+    height: 100vh;
 }
 
-/* Header ajusté en fonction de la taille de l'écran */
+/* Header – garde votre organisation initiale */
 header {
-    background: linear-gradient(135deg, var(--header-bg), #4682B4); /* Bleu plus foncé */
+    background: linear-gradient(135deg, var(--header-bg), #4682B4);
     flex-shrink: 0;
-    height: 15vh;  /* La hauteur du header sera 15% de la hauteur de la fenêtre */
-    padding: 0;  /* Enlever les espacements existants */
+    height: var(--header-height);
+    padding: 0;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* Ombre douce pour le header */
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     transition: box-shadow 0.3s ease-in-out;
-    margin-bottom: 0; /* Enlever la marge du bas */
 }
 
-/* Ajouter la marge colorée en haut du header */
+/* Marge colorée au-dessus du header */
 body::before {
     content: "";
     display: block;
-    height: 20px;  /* Hauteur de la marge */
-    background-color: var(--header-bg); /* Même couleur que le header */
+    height: 20px;
+    background-color: var(--header-bg);
 }
 
-/* Logos ajustés pour occuper 40% de la hauteur du header */
+/* Logos et titre – inchangés */
 .logos {
     display: flex;
     justify-content: space-around;
     align-items: center;
     width: 100%;
-    max-width: 1200px;  /* Limiter la largeur pour une meilleure organisation */
-    height: 40%;  /* Les logos prennent 40% de la hauteur du header */
-    margin-bottom: 0;  /* Enlever l'espacement sous les logos */
+    max-width: 1200px;
+    height: 40%;
+    margin-bottom: 0;
 }
-
 .logos img {
     max-height: 100%;
     width: auto;
-    transition: transform 0.3s ease;  /* Transition douce pour un effet au survol */
+    transition: transform 0.3s ease;
 }
-
 .logos img:hover {
-    transform: scale(1.1);  /* Légère mise en valeur des logos au survol */
+    transform: scale(1.1);
 }
-
-/* Titre ajusté pour tenir compte du nouvel espace disponible */
 h1 {
     font-size: 2.2em;
     font-weight: bold;
@@ -84,21 +83,30 @@ h1 {
     text-align: center;
     margin-top: 10px;
     letter-spacing: 1px;
-    flex-shrink: 0; /* Assurer que le titre ne rétrécit pas */
+    flex-shrink: 0;
 }
 
-/* Main centrée, avec conteneur principal limité en largeur */
+/* Main : définit l'espace disponible entre header et footer */
 main {
-    flex-grow: 1;  /* Permet à main d'occuper tout l'espace restant */
+    flex-grow: 1;
+    /* On définit la hauteur disponible avec calc() */
+    height: calc(100vh - var(--header-height) - var(--footer-height));
     display: flex;
-    align-items: center;
     justify-content: center;
-    padding: 20px; /* Ajout d'un peu d'espacement interne pour le main */
-    padding-top: 20px;  /* Ajouter un padding top pour compenser le header */
-    box-sizing: border-box;
-    overflow-y: auto; /* Permet de défiler si nécessaire */
-    max-height: calc(100vh - 15vh - 50px); /* Calcule l'espace restant entre header et footer */
-    overflow: hidden;  /* Empêche tout défilement supplémentaire */
+    align-items: center;
+    /* Pas de padding ici pour ne pas perturber le scaling */
+    overflow: hidden;
+    position: relative;
+}
+
+/* Wrapper interne qui contiendra l’ensemble de vos containers.
+   Ce wrapper sera mis à l’échelle sur petits écrans */
+.scalable-wrapper {
+    /* Dimensions par défaut en desktop : prendre toute la place prévue */
+    width: 100%;
+    height: 100%;
+    /* On positionne le scaling par rapport au haut et au centre */
+    transform-origin: center center;
 }
 
 /* Conteneur général pour les boîtes */
@@ -106,27 +114,66 @@ main {
     display: flex;
     gap: 20px;
     width: 100%;
-    max-width: 1400px;  /* Limitation de la largeur pour une meilleure organisation */
-    margin: 20px; /* Ajout d'une marge pour les containers autour */
-    flex-wrap: wrap; /* Permet le passage à la ligne des containers sur petits écrans */
-    flex-grow: 1; /* Permet au conteneur de s'étendre pour occuper l'espace restant */
+    max-width: 1400px;
+    margin: 20px auto;
+    flex-wrap: wrap;
 }
 
-/* Boîtes modernes avec un peu plus d'espace interne si nécessaire */
+/* Partie Score Total et explications des résultats : centré dans main */
+.container.score-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 30px;
+    width: 100%;
+}
+
+/* Boîtes de score avec alignement central */
+.score-col {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 500px; /* Pour éviter un étalement excessif */
+    width: 100%;
+}
+
+/* Bouton "Calculer le score" : positionné en bas à droite mais avec un espacement */
+.btn-calculate {
+    position: fixed;
+    bottom: 20px; /* Distance du bas */
+    right: 20px; /* Distance du côté droit */
+    background-color: var(--primary-color);
+    color: #fff;
+    padding: 12px 20px;
+    border-radius: 8px;
+    font-size: 1.1em;
+    cursor: pointer;
+    text-align: center;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    text-decoration: none; /* Pour enlever la décoration de lien */
+}
+
+.btn-calculate:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.05);
+}
+
+
+/* Boîtes – reprise de votre style habituel */
 .box {
     background-color: var(--box-bg);
     border: 1px solid var(--box-border);
     border-radius: 8px;
     padding: 20px;
-    flex: 1;  /* Les boîtes s'étendent pour occuper tout l'espace disponible */
+    flex: 1;
     box-shadow: var(--box-shadow);
     transition: transform 0.3s ease;
 }
-
 .box:hover {
     transform: translateY(-5px);
 }
 
+/* Reste de votre CSS pour formulaires, footer etc. reste inchangé */
 /* Modernisation des formulaires */
 label {
     display: block;
@@ -144,13 +191,11 @@ input, select {
     font-size: 1em;
     transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 input:focus, select:focus {
     outline: none;
     border-color: var(--primary-color);
     box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
-
 button {
     display: inline-block;
     margin-top: 15px;
@@ -167,8 +212,6 @@ button:hover {
     background-color: var(--primary-hover);
     transform: scale(1.02);
 }
-
-/* Zone d'informations */
 .info img {
     width: 100%;
     height: auto;
@@ -176,50 +219,42 @@ button:hover {
     margin-top: 10px;
 }
 
-/* Footer moderne et arrondi */
+/* Footer */
 footer {
-    background-color: #222;  /* Fond sombre pour le footer */
+    background-color: #222;
     color: #fff;
     flex-shrink: 0;
-    height: 50px;
+    height: var(--footer-height);
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1em;
-    padding: 10px 0; 
-    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);  /* Ombre subtile pour un effet de profondeur */
+    padding: 10px 0;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 footer:hover {
-    background-color: #444;  /* Changement de couleur au survol */
-    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);  /* Ombre plus marquée au survol */
+    background-color: #444;
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);
 }
 
-/* Media Queries pour petits écrans (smartphones) */
+/* Media Queries spécifiques pour les très petits écrans.
+   Ici on peut réduire légèrement les espacements tout en gardant l’organisation */
 @media screen and (max-width: 768px) {
-    /* Empêcher les containers de déborder et ajouter du défilement vertical */
-    body {
-        overflow-y: scroll;
-    }
-
     .container {
-        flex-direction: column; /* Changer l'organisation des containers en vertical */
+        flex-direction: column;
         gap: 15px;
+        margin: 20px auto;
     }
-
-    /* Ajuster les boîtes pour qu'elles prennent toute la largeur disponible */
     .box {
         flex: none;
         width: 100%;
     }
-
     header {
-        height: auto;  /* Réduire la hauteur du header sur mobile */
-        margin-bottom: 10px;  /* Réduire la marge en bas du header */
+        height: auto;
+        margin-bottom: 10px;
     }
-
     h1 {
-        font-size: 1.5em; /* Ajuster la taille du titre pour mobile */
+        font-size: 1.5em;
     }
 }
