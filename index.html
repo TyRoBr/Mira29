@@ -134,5 +134,39 @@
     document.getElementById('result').innerText = "CPC : " + cpc;
   }
   </script>
+<script>
+function adjustScale() {
+  const header = document.querySelector('header');
+  const footer = document.querySelector('footer');
+  const wrapper = document.querySelector('.scalable-wrapper');
+  if (!wrapper || !header || !footer) return;
+  
+  // Réinitialiser le scale pour mesurer la hauteur naturelle
+  wrapper.style.transform = 'scale(1)';
+  
+  // Utiliser la hauteur totale du viewport moins les hauteurs réelles du header et du footer
+  const headerHeight = header.getBoundingClientRect().height;
+  const footerHeight = footer.getBoundingClientRect().height;
+  const availableHeight = window.innerHeight - headerHeight - footerHeight;
+  
+  // Mesurer la hauteur naturelle du contenu à scaler
+  const contentHeight = wrapper.getBoundingClientRect().height;
+  
+  // Calcul du facteur de scaling
+  const scale = availableHeight / contentHeight;
+  
+  // Appliquer le scaling uniquement si nécessaire (le facteur sera inférieur à 1)
+  if (scale < 1) {
+    wrapper.style.transform = 'scale(' + scale + ')';
+  } else {
+    wrapper.style.transform = 'scale(1)';
+  }
+}
+
+// Ajuster lors du chargement et du redimensionnement de la fenêtre
+window.addEventListener('resize', adjustScale);
+window.addEventListener('DOMContentLoaded', adjustScale);
+
+</script>
 </body>
 </html>
