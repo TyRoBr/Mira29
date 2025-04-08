@@ -151,7 +151,7 @@ button {
     display: inline-block;
     margin-top: 15px;
     padding: 12px 20px;
-    background-color: var(--primary-color);
+    background-color: #4682B4;
     color: #fff;
     border: none;
     border-radius: 6px;
