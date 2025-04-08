@@ -1,0 +1,138 @@
+<!-- public/index.html -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Calcul du Score MIRA 29</title>
+  <!-- Police moderne Roboto -->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500,700&display=swap" rel="stylesheet">
+  <!-- Lien vers le fichier CSS externe -->
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <div class="logos">
+      <img src="images/CHU.png" alt="Logo CHU" class="logo-chu">
+      <img src="images/UBO.png" alt="Logo UBO" class="logo-ubo">
+      <img src="images/LaTIM.png" alt="Logo LaTIM" class="logo-latim">
+    </div>
+    <h1>Calcul du Score MIRA 29</h1>
+  </header>
+  <main>
+    <div class="container">
+      <!-- Variables d'entrée -->
+      <div class="box">
+        <h2>Variables d'entrée</h2>
+        <label for="lowFlow">Low Flow (minutes) :</label>
+        <input type="number" id="lowFlow" step="any" value="0">
+        
+        <label for="nbCEE">Nombre de CEE :</label>
+        <input type="number" id="nbCEE" step="any" value="0">
+        
+        <label for="adr">Quantité d'adrénaline :</label>
+        <input type="number" id="adr" step="any" value="0">
+        
+        <label for="site">Site de l'arrêt cardiaque :</label>
+        <select id="site">
+          <option value="0">0 : domicile</option>
+          <option value="1">1 : voie publique</option>
+          <option value="2">2 : lieu public</option>
+        </select>
+        
+        <button onclick="calculateScore()">Calculer le Score</button>
+      </div>
+      <!-- Résultats -->
+      <div class="box">
+        <h2>Résultats</h2>
+        <p id="result">Veuillez entrer les variables et cliquer sur "Calculer le Score".</p>
+        <p><a href="formula.html" target="_blank" rel="noopener noreferrer">Voir la formule du score</a></p>
+      </div>
+      <!-- Informations -->
+      <div class="box info">
+        <h2>Informations</h2>
+        <img src="images/CPC.jpg" alt="Publication">
+        <p>Pour en savoir plus, consultez l'article sur <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank">PubMed</a>.</p>
+      </div>
+    </div>
+  </main>
+  <footer>
+    Score MIRA - 2025 - Médecine Intensive Réanimation - CHU Brest
+  </footer>
+  <script>
+    // Fonctions d'arrondi/troncature à 1 décimale
+  // Fonctions d'arrondi/troncature à 1 décimale
+  function arrondiInf(x) {
+    return Math.floor(x * 10) / 10;
+  }
+  function arrondiSup(x) {
+    return Math.ceil(x * 10) / 10;
+  }
+  function tronque(x) {
+    return Math.trunc(x * 10) / 10;
+  }
+
+  // Fonction pour calculer le score et déterminer le CPC
+  function calculateScore() {
+    let A2 = parseFloat(document.getElementById('lowFlow').value) || 0;
+    let B2 = parseFloat(document.getElementById('nbCEE').value) || 0;
+    let C2 = parseFloat(document.getElementById('adr').value) || 0;
+    let D2 = parseFloat(document.getElementById('site').value) || 0;
+    
+    const sinB2 = Math.sin(B2);
+    const cosD2 = Math.cos(D2);
+    const absD2 = Math.abs(D2);
+    
+    // Calcul du score BAD
+    const exponentBad = 
+       -0.28498204610245 * A2 +
+       0.0492951793604829 * arrondiInf(B2) * arrondiSup(C2) +
+       0.0970097696630778 * arrondiInf(C2) * arrondiInf(B2) +
+       0.128618766194885 * arrondiInf(C2) * sinB2 +
+       0.0653571817634567 * arrondiSup(C2) * sinB2 +
+       0.0765070170481534 * cosD2 * absD2 +
+       0.054465763653058 * Math.pow(cosD2,2) +
+       0.0268669860891494 * Math.pow(absD2,2) -
+       0.163378033898795 * arrondiInf(B2) +
+       0.683801733179355 * arrondiInf(C2) -
+       0.462183083454566 * arrondiSup(D2) +
+       0.347471488708366 * arrondiSup(C2) -
+       0.216612009454207 * sinB2 +
+       0.34645182430784 * Math.cos(0.587426565957122 * Math.cos(D2) + 0.412573434042878 * absD2) -
+       0.328822044880203 * absD2 -
+       0.834671717861705 * tronque(-0.392849641282171 * A2);
+    const scoreBad = Math.exp(exponentBad);
+    
+    // Calcul du score GOOD
+    const exponentGood = 
+       0.28498204610245 * A2 -
+       0.0492951793604829 * arrondiInf(B2) * arrondiSup(C2) -
+       0.0970097696630778 * arrondiInf(C2) * arrondiInf(B2) -
+       0.128618766194885 * arrondiInf(C2) * sinB2 -
+       0.0653571817634567 * arrondiSup(C2) * sinB2 -
+       0.0765070170481534 * cosD2 * absD2 -
+       0.054465763653058 * Math.pow(cosD2,2) -
+       0.0268669860891494 * Math.pow(absD2,2) +
+       0.163378033898795 * arrondiInf(B2) -
+       0.683801733179355 * arrondiInf(C2) +
+       0.462183083454566 * arrondiSup(D2) -
+       0.347471488708366 * arrondiSup(C2) +
+       0.216612009454207 * sinB2 -
+       0.34645182430784 * Math.cos(0.587426565957122 * Math.cos(D2) + 0.412573434042878 * absD2) +
+       0.328822044880203 * absD2 +
+       0.834671717861705 * tronque(-0.392849641282171 * A2);
+    const scoreGood = Math.exp(exponentGood);
+    
+    // Calcul du score final
+    const finalScore = scoreGood / (scoreGood + scoreBad);
+    
+    // Détermination du CPC selon le cutoff de 0.35
+    const cpc = finalScore < 0.35 
+      ? "Pronostic neurologique favorable (CPC 1-2)"
+      : "Pronostic neurologique défavorable (CPC 3-4-5)";
+    
+    // Affichage du résultat avec le pronostic CPC
+    document.getElementById('result').innerText = "CPC : " + cpc;
+  }
+  </script>
+</body>
+</html>

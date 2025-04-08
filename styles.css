@@ -1,0 +1,208 @@
+/* public/styles.css */
+
+/* Variables CSS pour faciliter le thème */
+:root {
+    --primary-color: #007BFF;
+    --primary-hover: #0056b3;
+    --background-color: #f9f9f9;
+    --header-footer-bg: #e3e3e3;
+    --text-color: #333;
+    --box-bg: #fff;
+    --box-border: #ddd;
+    --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    --form-bg: #fff;
+}
+
+/* Assurer que la page tient dans la fenêtre */
+html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    font-family: 'Roboto', sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    overflow-x: hidden; /* Empêche le défilement horizontal */
+}
+
+/* Mise en page en flex pour répartir verticalement */
+body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+/* Header plus foncé */
+header {
+    background: linear-gradient(135deg, #0056b3, #003d7a); /* Bleu plus foncé */
+    flex-shrink: 0;
+    padding: 20px 0;  /* Espacement plus généreux */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);  /* Ombre douce pour le header */
+    transition: box-shadow 0.3s ease-in-out;
+}
+
+/* Logos alignés de manière centrée et moderne */
+.logos {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    width: 100%;
+    max-width: 1200px;  /* Limiter la largeur pour une meilleure organisation */
+    margin-bottom: 15px;  /* Espacement sous les logos */
+}
+
+.logos img {
+    max-height: 60px;
+    width: auto;
+    transition: transform 0.3s ease;  /* Transition douce pour un effet au survol */
+}
+
+.logos img:hover {
+    transform: scale(1.1);  /* Légère mise en valeur des logos au survol */
+}
+
+/* Titre */
+h1 {
+    font-size: 2.2em;
+    font-weight: bold;
+    color: #fff;
+    text-align: center;
+    margin-top: 10px;
+    letter-spacing: 1px;
+}
+
+/* Main centrée, avec conteneur principal limité en largeur */
+main {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto; /* Permet de défiler si nécessaire, sans débordement horizontal */
+}
+
+/* Conteneur général pour les boîtes */
+.container {
+    display: flex;
+    gap: 20px;
+    width: 100%;
+    max-width: 1400px;  /* Augmentation de la largeur maximale */
+    margin: 0 auto;
+    flex-wrap: wrap; /* Permet le passage à la ligne des containers sur petits écrans */
+}
+
+/* Boîtes modernes avec un peu plus d'espace interne si nécessaire */
+.box {
+    background-color: var(--box-bg);
+    border: 1px solid var(--box-border);
+    border-radius: 8px;
+    padding: 20px;
+    flex: 1;  /* Elles s'étendent pour occuper tout l'espace disponible */
+    box-shadow: var(--box-shadow);
+    transition: transform 0.3s ease;
+}
+
+.box:hover {
+    transform: translateY(-5px);
+}
+
+/* Modernisation des formulaires */
+label {
+    display: block;
+    margin: 10px 0 5px 0;
+    font-weight: 500;
+}
+input, select {
+    width: 100%;
+    padding: 12px 15px;
+    margin-top: 5px;
+    box-sizing: border-box;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: var(--form-bg);
+    font-size: 1em;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+button {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 12px 20px;
+    background-color: var(--primary-color);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+}
+button:hover {
+    background-color: var(--primary-hover);
+    transform: scale(1.02);
+}
+
+/* Zone d'informations */
+.info img {
+    width: 100%;
+    height: auto;
+    border-radius: 4px;
+    margin-top: 10px;
+}
+
+/* Footer moderne et arrondi */
+footer {
+    background-color: #222;  /* Fond sombre pour le footer */
+    color: #fff;
+    flex-shrink: 0;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1em;
+    padding: 10px 0;
+    border-radius: 10px 10px 0 0;  /* Coins arrondis pour un effet plus fluide */
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);  /* Ombre subtile pour un effet de profondeur */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+footer:hover {
+    background-color: #444;  /* Changement de couleur au survol */
+    box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.2);  /* Ombre plus marquée au survol */
+}
+
+/* Media Queries pour petits écrans (smartphones) */
+@media screen and (max-width: 768px) {
+    /* Empêcher les containers de déborder et ajouter du défilement vertical */
+    body {
+        overflow-y: scroll;
+    }
+
+    .container {
+        flex-direction: column; /* Changer l'organisation des containers en vertical */
+        gap: 15px;
+    }
+
+    /* Ajuster les boîtes pour qu'elles prennent toute la largeur disponible */
+    .box {
+        flex: none;
+        width: 100%;
+    }
+
+    header {
+        height: auto;  /* Réduire la hauteur du header sur mobile */
+    }
+
+    h1 {
+        font-size: 1.5em; /* Ajuster la taille du titre pour mobile */
+    }
+}
