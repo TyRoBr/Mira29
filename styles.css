@@ -151,7 +151,7 @@ button {
     display: inline-block;
     margin-top: 15px;
     padding: 12px 20px;
-    background-color: #4682B4;
+    background-color: var(--header-bg);
     color: #fff;
     border: none;
     border-radius: 6px;
@@ -160,7 +160,7 @@ button {
     transition: background-color 0.3s ease, transform 0.3s ease;
 }
 button:hover {
-    background-color: var(--primary-hover);
+    background-color: var(--header-bg);
     transform: scale(1.02);
 }
 
@@ -182,8 +182,7 @@ footer {
     align-items: center;
     justify-content: center;
     font-size: 1em;
-    padding: 10px 0;
-    border-radius: 10px 10px 0 0;  /* Coins arrondis pour un effet plus fluide */
+    padding: 10px 0; 
     box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);  /* Ombre subtile pour un effet de profondeur */
     transition: background-color 0.3s ease, box-shadow 0.3s ease;
 }
