@@ -11,6 +11,7 @@
     --box-border: #ddd;
     --box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     --form-bg: #fff;
+    --header-bg: #4682B4;  /* Couleur du header */
 }
 
 /* Assurer que la page tient dans la fenêtre */
@@ -28,14 +29,15 @@ html, body {
 body {
     display: flex;
     flex-direction: column;
-    height: 100%;
+    height: 100vh;  /* La hauteur du body est 100% de la hauteur de la fenêtre */
 }
 
-/* Header plus foncé */
+/* Header ajusté en fonction de la taille de l'écran */
 header {
-    background: linear-gradient(135deg, #0056b3, #003d7a); /* Bleu plus foncé */
+    background: linear-gradient(135deg, var(--header-bg), #4682B4); /* Bleu plus foncé */
     flex-shrink: 0;
-    padding: 20px 0;  /* Espacement plus généreux */
+    height: 15vh;  /* La hauteur du header sera 15% de la hauteur de la fenêtre */
+    padding: 0;  /* Enlever les espacements existants */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -44,18 +46,27 @@ header {
     transition: box-shadow 0.3s ease-in-out;
 }
 
-/* Logos alignés de manière centrée et moderne */
+/* Ajouter la marge colorée en haut du header */
+body::before {
+    content: "";
+    display: block;
+    height: 20px;  /* Hauteur de la marge */
+    background-color: var(--header-bg); /* Même couleur que le header */
+}
+
+/* Logos ajustés pour occuper 40% de la hauteur du header */
 .logos {
     display: flex;
     justify-content: space-around;
     align-items: center;
     width: 100%;
     max-width: 1200px;  /* Limiter la largeur pour une meilleure organisation */
-    margin-bottom: 15px;  /* Espacement sous les logos */
+    height: 40%;  /* Les logos prennent 40% de la hauteur du header */
+    margin-bottom: 0;  /* Enlever l'espacement sous les logos */
 }
 
 .logos img {
-    max-height: 60px;
+    max-height: 100%;
     width: auto;
     transition: transform 0.3s ease;  /* Transition douce pour un effet au survol */
 }
@@ -64,7 +75,7 @@ header {
     transform: scale(1.1);  /* Légère mise en valeur des logos au survol */
 }
 
-/* Titre */
+/* Titre ajusté pour tenir compte du nouvel espace disponible */
 h1 {
     font-size: 2.2em;
     font-weight: bold;
@@ -72,17 +83,18 @@ h1 {
     text-align: center;
     margin-top: 10px;
     letter-spacing: 1px;
+    flex-shrink: 0; /* Assurer que le titre ne rétrécit pas */
 }
 
 /* Main centrée, avec conteneur principal limité en largeur */
 main {
-    flex: 1;
+    flex-grow: 1;  /* Permet à main d'occuper tout l'espace restant */
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 10px;
+    padding: 20px; /* Ajout d'un peu d'espacement interne pour le main */
     box-sizing: border-box;
-    overflow-y: auto; /* Permet de défiler si nécessaire, sans débordement horizontal */
+    overflow-y: auto; /* Permet de défiler si nécessaire */
 }
 
 /* Conteneur général pour les boîtes */
@@ -90,9 +102,10 @@ main {
     display: flex;
     gap: 20px;
     width: 100%;
-    max-width: 1400px;  /* Augmentation de la largeur maximale */
-    margin: 0 auto;
+    max-width: 1400px;  /* Limitation de la largeur pour une meilleure organisation */
+    margin: 20px; /* Ajout d'une marge pour les containers autour */
     flex-wrap: wrap; /* Permet le passage à la ligne des containers sur petits écrans */
+    flex-grow: 1; /* Permet au conteneur de s'étendre pour occuper l'espace restant */
 }
 
 /* Boîtes modernes avec un peu plus d'espace interne si nécessaire */
@@ -101,7 +114,7 @@ main {
     border: 1px solid var(--box-border);
     border-radius: 8px;
     padding: 20px;
-    flex: 1;  /* Elles s'étendent pour occuper tout l'espace disponible */
+    flex: 1;  /* Les boîtes s'étendent pour occuper tout l'espace disponible */
     box-shadow: var(--box-shadow);
     transition: transform 0.3s ease;
 }
