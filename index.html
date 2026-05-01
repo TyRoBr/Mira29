@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MIRA-29 Score Calculator</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0f1e;
+    --surface: #0f172a;
+    --surface2: #1e293b;
+    --border: #1e3a5f;
+    --accent: #38bdf8;
+    --accent2: #0ea5e9;
+    --good: #10b981;
+    --intermediate: #f59e0b;
+    --bad: #ef4444;
+    --warn: #f59e0b;
+    --text: #e2e8f0;
+    --text-muted: #64748b;
+    --text-dim: #94a3b8;
+    --glow: rgba(56, 189, 248, 0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    background-image:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(56,189,248,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 80%, rgba(14,165,233,0.05) 0%, transparent 50%);
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(10,15,30,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .logo-zone {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .logo-slot {
+    width: 80px;
+    height: 48px;
+    border: 1.5px dashed var(--border);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    transition: all 0.2s;
+    overflow: hidden;
+    position: relative;
+  }
+  .logo-slot:hover { border-color: var(--accent); color: var(--accent); }
+  .logo-slot img { width: 100%; height: 100%; object-fit: contain; }
+  .logo-slot input[type="file"] {
+    position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%; height: 100%;
+  }
+
+  .header-title {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.5rem;
+    letter-spacing: -0.01em;
+    color: var(--accent);
+  }
+  .header-title span { color: var(--text-dim); font-size: 0.85rem; font-family: 'DM Sans', sans-serif; font-weight: 300; display: block; }
+
+  /* ---- MAIN ---- */
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 56px 24px;
+  }
+
+  .hero {
+    text-align: center;
+    margin-bottom: 56px;
+  }
+  .hero h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: clamp(2.4rem, 5vw, 3.8rem);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero h1 em { color: var(--accent); font-style: italic; }
+  .hero p {
+    color: var(--text-dim);
+    font-size: 1rem;
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+  .badge {
+    display: inline-block;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.7rem;
+    background: rgba(56,189,248,0.1);
+    border: 1px solid rgba(56,189,248,0.3);
+    color: var(--accent);
+    padding: 4px 12px;
+    border-radius: 20px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 20px;
+  }
+
+  /* ---- FORM CARD ---- */
+  .calc-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 0 60px rgba(56,189,248,0.05), 0 24px 48px rgba(0,0,0,0.4);
+  }
+
+  .card-header {
+    background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+    padding: 28px 36px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .card-header-icon {
+    width: 36px; height: 36px;
+    background: rgba(56,189,248,0.15);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px;
+  }
+  .card-header h2 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.2rem;
+    font-weight: 400;
+  }
+  .card-header span {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    font-weight: 300;
+  }
+
+  .form-body { padding: 36px; }
+
+  .input-group {
+    margin-bottom: 28px;
+  }
+  .input-label {
+    display: block;
+    font-size: 0.78rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--text-dim);
+    margin-bottom: 8px;
+  }
+  .input-label .unit {
+    font-weight: 300;
+    text-transform: none;
+    letter-spacing: 0;
+    color: var(--text-muted);
+    margin-left: 4px;
+  }
+  .input-desc {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    margin-bottom: 8px;
+    font-style: italic;
+  }
+
+  input[type="number"], select {
+    width: 100%;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    padding: 14px 18px;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+    appearance: none;
+  }
+  input[type="number"]:focus, select:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(56,189,248,0.1);
+  }
+  input[type="number"]::placeholder { color: var(--text-muted); }
+
+  select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 16px center;
+    padding-right: 40px;
+  }
+  select option { background: #1e293b; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+  }
+
+  /* Shock continuous slider */
+  .slider-wrapper {
+    position: relative;
+  }
+  input[type="range"] {
+    width: 100%;
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    background: var(--surface2);
+    border-radius: 3px;
+    outline: none;
+    border: 1px solid var(--border);
+    padding: 0;
+    cursor: pointer;
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--accent);
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(56,189,248,0.5);
+    transition: box-shadow 0.2s;
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px rgba(56,189,248,0.7);
+  }
+  .slider-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    color: var(--accent);
+    text-align: right;
+    margin-bottom: 8px;
+  }
+  .slider-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    margin-top: 6px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Divider */
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 32px 0;
+  }
+
+  /* ---- CALCULATE BUTTON ---- */
+  .btn-calc {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #0284c7, #0ea5e9);
+    border: none;
+    border-radius: 12px;
+    color: #fff;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 1rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-transform: uppercase;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-calc:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 8px 30px rgba(14,165,233,0.4);
+  }
+  .btn-calc:active { transform: translateY(0); }
+
+  /* ---- RESULT ---- */
+  #result-section {
+    margin-top: 32px;
+    display: none;
+    animation: fadeUp 0.4s ease;
+  }
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .result-card {
+    border-radius: 16px;
+    padding: 32px;
+    text-align: center;
+    border: 2px solid;
+    position: relative;
+    overflow: hidden;
+  }
+  .result-card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    opacity: 0.06;
+  }
+  .result-card.good {
+    border-color: var(--good);
+    background: rgba(16,185,129,0.05);
+  }
+  .result-card.good::before { background: var(--good); }
+  .result-card.intermediate {
+    border-color: var(--intermediate);
+    background: rgba(245,158,11,0.05);
+  }
+  .result-card.intermediate::before { background: var(--intermediate); }
+  .result-card.bad {
+    border-color: var(--bad);
+    background: rgba(239,68,68,0.05);
+  }
+  .result-card.bad::before { background: var(--bad); }
+
+  .result-icon { font-size: 3rem; margin-bottom: 12px; }
+  .result-label {
+    font-family: 'DM Serif Display', serif;
+    font-size: 2rem;
+    margin-bottom: 8px;
+  }
+  .result-label.good { color: var(--good); }
+  .result-label.intermediate { color: var(--intermediate); }
+  .result-label.bad { color: var(--bad); }
+  .result-score {
+    font-family: 'DM Mono', monospace;
+    font-size: 3.5rem;
+    font-weight: 500;
+    line-height: 1;
+    margin-bottom: 8px;
+  }
+  .result-score.good { color: var(--good); }
+  .result-score.intermediate { color: var(--intermediate); }
+  .result-score.bad { color: var(--bad); }
+  .result-sub {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+  }
+
+  /* progress bar — 3-zone background */
+  .score-bar-wrap {
+    margin: 20px 0 8px;
+    border-radius: 8px;
+    height: 14px;
+    overflow: visible;
+    position: relative;
+    background: linear-gradient(90deg,
+      rgba(16,185,129,0.25) 0%,
+      rgba(16,185,129,0.25) 35%,
+      rgba(245,158,11,0.25) 35%,
+      rgba(245,158,11,0.25) 75%,
+      rgba(239,68,68,0.25) 75%,
+      rgba(239,68,68,0.25) 100%
+    );
+  }
+  /* threshold tick at 0.35 */
+  .score-bar-wrap::before {
+    content: '';
+    position: absolute;
+    left: 35%;
+    top: -3px; bottom: -3px;
+    width: 2px;
+    background: rgba(16,185,129,0.7);
+    border-radius: 2px;
+    z-index: 2;
+  }
+  /* threshold tick at 0.75 */
+  .score-bar-wrap::after {
+    content: '';
+    position: absolute;
+    left: 75%;
+    top: -3px; bottom: -3px;
+    width: 2px;
+    background: rgba(239,68,68,0.7);
+    border-radius: 2px;
+    z-index: 2;
+  }
+  /* needle indicator */
+  .score-needle {
+    position: absolute;
+    top: -5px;
+    width: 4px;
+    height: 24px;
+    background: #fff;
+    border-radius: 2px;
+    box-shadow: 0 0 8px rgba(255,255,255,0.6);
+    transform: translateX(-50%);
+    transition: left 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 3;
+  }
+  .score-bar {
+    height: 100%;
+    border-radius: 8px;
+    transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    position: relative;
+    z-index: 1;
+  }
+  .score-bar.good { background: linear-gradient(90deg, #059669, #10b981); }
+  .score-bar.intermediate { background: linear-gradient(90deg, #d97706, #f59e0b); }
+  .score-bar.bad { background: linear-gradient(90deg, #dc2626, #ef4444); }
+  .bar-labels {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.68rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    position: relative;
+    margin-top: 4px;
+  }
+
+  .breakdown-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 20px;
+    text-align: left;
+  }
+  .breakdown-item {
+    background: var(--surface2);
+    border-radius: 10px;
+    padding: 12px 16px;
+    border: 1px solid var(--border);
+  }
+  .breakdown-item .lbl {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+  }
+  .breakdown-item .val {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    color: var(--text);
+  }
+
+  /* ---- FORMULA ---- */
+  .formula-section {
+    margin-top: 72px;
+    padding: 40px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+  }
+  .formula-section h3 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 1.4rem;
+    margin-bottom: 6px;
+  }
+  .formula-section .subtitle {
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    margin-bottom: 28px;
+  }
+
+  .formula-block {
+    background: #020817;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 28px;
+    margin-bottom: 20px;
+    overflow-x: auto;
+  }
+  .formula-block h4 {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--accent);
+    margin-bottom: 16px;
+  }
+  .formula-block pre {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: #94a3b8;
+    white-space: pre;
+    line-height: 1.8;
+  }
+  .formula-block pre .coeff { color: #f59e0b; }
+  .formula-block pre .func { color: #38bdf8; }
+  .formula-block pre .var { color: #a78bfa; }
+  .formula-block pre .op { color: #64748b; }
+  .formula-block pre .exp { color: #10b981; }
+
+  .formula-note {
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    line-height: 1.6;
+    padding: 16px 20px;
+    background: rgba(56,189,248,0.04);
+    border-left: 3px solid var(--accent);
+    border-radius: 0 8px 8px 0;
+    margin-bottom: 20px;
+  }
+
+  .ref-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.82rem;
+    color: var(--accent);
+    text-decoration: none;
+    background: rgba(56,189,248,0.08);
+    border: 1px solid rgba(56,189,248,0.2);
+    padding: 10px 18px;
+    border-radius: 8px;
+    transition: all 0.2s;
+  }
+  .ref-link:hover {
+    background: rgba(56,189,248,0.15);
+    border-color: var(--accent);
+  }
+  .ref-link svg { flex-shrink: 0; }
+
+  /* ---- FOOTER ---- */
+  footer {
+    text-align: center;
+    padding: 32px 24px;
+    color: var(--text-muted);
+    font-size: 0.75rem;
+    border-top: 1px solid var(--border);
+    margin-top: 40px;
+  }
+  footer a { color: var(--accent); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    header { padding: 16px 20px; }
+    main { padding: 32px 16px; }
+    .form-body { padding: 24px 20px; }
+    .grid-2 { grid-template-columns: 1fr; }
+    .breakdown-grid { grid-template-columns: 1fr; }
+    .formula-section { padding: 24px 16px; }
+    .formula-block { padding: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+     <div class="logo-zone">
+         <div class="logo-slot">
+             <img src="Images/CHU.png" alt="Logo 1">
+         </div>
+         <div class="logo-slot">
+             <img src="Images/LaTIM.png" alt="Logo 2">
+         </div>
+         <div class="logo-slot">
+             <img src="Images/UBO.png" alt="Logo 3">
+         </div>
+     </div>
+     <div style="text-align:right">
+         <div class="header-title">
+             MIRA-29 Score
+             <span>Neurological Prognosis Estimator · Out of Hospital Cardiac Arrest</span>
+         </div>
+        </div>
+    </header>
+
+<!-- MAIN -->
+<main>
+  <div class="hero">
+    <div class="badge">Clinical Decision Support</div>
+    <h1>MIRA-29 <em>Prognostic</em><br>Score Calculator</h1>
+    <p>Estimate the probability of poor neurological outcome after out-of-hospital cardiac arrest using the MIRA-29 scoring model.</p>
+  </div>
+
+  <div class="calc-card">
+    <div class="card-header">
+      <div class="card-header-icon">🫀</div>
+      <div>
+        <h2>Patient Parameters</h2>
+        <span>Enter values during Cardio-Pulmonary Resuscitation</span>
+      </div>
+    </div>
+    <div class="form-body">
+
+        <!-- Low Flow -->
+        <div class="input-group">
+            <label class="input-label" for="Low-Flow">Duration of low brain perfusion</label>
+            <div class="input-desc">Cumuation of No Flow / Low Flow duration time</div>
+            <select id="lf">
+                <option value="" disabled selected>— Select LF duration time —</option>
+                <option value="0">< 20 minutes (0)</option>
+                <option value="1">20-45 minutes (1)</option>
+                <option value="2">> 45 minutes (2)</option>
+            </select>
+        </div>
+
+        <div class="grid-2">
+            <!-- Shock Delivery -->
+            <div class="input-group">
+                <label class="input-label" for="shock">Shock Delivery <span class="unit">— continuous</span></label>
+                <div class="input-desc">Number of defibrillations delivered</div>
+                <div class="slider-value" id="shock-display">0</div>
+                <div class="slider-wrapper">
+                    <input type="range" id="shock" min="0" max="20" step="1" value="0"
+                           oninput="document.getElementById('shock-display').textContent = parseFloat(this.value).toFixed(1)">
+                </div>
+                <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+            </div>
+
+            <!-- Epinephrine Dose -->
+            <div class="input-group">
+                <label class="input-label" for="epi">Epinephrine Dose <span class="unit">— mg</span></label>
+                <div class="input-desc">Total cumulative dose of epinephrine administered (mg)</div>
+                <input type="number" id="epi" min="0" step="1" placeholder="e.g. 3" />
+            </div>
+        </div>
+
+        <hr class="divider">
+
+        <!-- Cardiac Arrest Site -->
+        <div class="input-group">
+            <label class="input-label" for="site">Cardiac Arrest Site</label>
+            <div class="input-desc">Location where cardiac arrest occurred</div>
+            <select id="site">
+                <option value="" disabled selected>— Select location —</option>
+                <option value="0">Street (0)</option>
+                <option value="1">Public Facilities (1)</option>
+                <option value="2">Home (2)</option>
+            </select>
+        </div>
+
+        <button class="btn-calc" onclick="calculate()">
+            ⚡ Calculate MIRA-29 Score
+        </button>
+
+        <!-- RESULT -->
+        <div id="result-section">
+            <div class="result-card" id="result-card">
+                <div class="result-icon" id="result-icon"></div>
+                <div class="result-label" id="result-label"></div>
+                <div class="result-score" id="result-score"></div>
+                <div class="result-sub" id="result-sub"></div>
+                <div class="score-bar-wrap">
+                    <div class="score-bar" id="score-bar" style="width:0%"></div>
+                    <div class="score-needle" id="score-needle" style="left:0%"></div>
+                </div>
+                <div class="bar-labels">
+                    <span>0.00</span>
+                    <span style="position:absolute;left:35%;transform:translateX(-50%);color:var(--good)">0.35</span>
+                    <span style="position:absolute;left:75%;transform:translateX(-50%);color:var(--bad)">0.75</span>
+                    <span>1.00</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;font-size:0.62rem;margin-top:14px;font-family:'DM Mono',monospace;">
+                    <span style="color:var(--good);width:35%;text-align:center">● Good prognosis</span>
+                    <span style="color:var(--intermediate);width:40%;text-align:center">● Intermediate</span>
+                    <span style="color:var(--bad);width:25%;text-align:center">● Poor prognosis</span>
+                </div>
+                <div class="breakdown-grid" id="breakdown-grid"></div>
+            </div>
+        </div>
+
+    </div>
+  </div>
+
+  <!-- FORMULA -->
+  <div class="formula-section">
+    <h3>Model Formula</h3>
+    <p class="subtitle">Complete mathematical definition of the MIRA-29 scoring model</p>
+
+    <div class="formula-note">
+      <strong>Variables:</strong> LF = Low Flow (minutes) · SD = Shock Delivery (number of Shock) · ED = Epinephrine Dose (mg) · CAS = Cardiac Arrest Site (0 = Street, 1 = Public Facilities, 2 = Home).<br>
+      <strong>MIRA-29 Score</strong> = Score<sub>Good</sub> / (Score<sub>Good</sub> + Score<sub>Bad</sub>) — interpreted as the probability of neurological outcome.
+      A score <strong>&lt; 0.35</strong> indicates <strong style="color:#10b981">Good Prognosis</strong> · a score between <strong>0.35 and 0.75</strong> indicates <strong style="color:#f59e0b">Intermediate Prognosis</strong> · a score <strong>&gt; 0.75</strong> indicates <strong style="color:#ef4444">Poor Prognosis</strong>.
+    </div>
+
+    <div class="formula-block">
+      <h4>Score<sub>Bad</sub> = exp( − [ … ] )</h4>
+      <pre><span class="exp">Score</span><span class="var">Bad</span> <span class="op">=</span> <span class="func">exp</span><span class="op">(</span>
+  <span class="op">−</span> <span class="coeff">0.28498204610245</span>   <span class="op">×</span> <span class="var">LF</span>
+  <span class="op">+</span> <span class="coeff">0.0492951793604829</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>) <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
+  <span class="op">+</span> <span class="coeff">0.0970097696630778</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.128618766194885</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.0653571817634567</span>  <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)  <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.0765070170481534</span>  <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> <span class="func">|CAS|</span>
+  <span class="op">+</span> <span class="coeff">0.054465763653058</span>   <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
+  <span class="op">+</span> <span class="coeff">0.0268669860891494</span>  <span class="op">×</span> <span class="func">|CAS|</span><sup>2</sup>
+  <span class="op">−</span> <span class="coeff">0.163378033898795</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.683801733179355</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>)
+  <span class="op">−</span> <span class="coeff">0.462183083454566</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">CAS</span>)
+  <span class="op">+</span> <span class="coeff">0.347471488708366</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
+  <span class="op">-</span> <span class="coeff">0.216612009454207</span>   <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.34645182430784</span>    <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> <span class="func">|CAS|</span>)
+  <span class="op">−</span> <span class="coeff">0.328822044880203</span>   <span class="op">×</span> <span class="func">|CAS|</span>
+  <span class="op">−</span> <span class="coeff">0.834671717861705</span>   <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+<span class="op">)</span></pre>
+    </div>
+
+    <div class="formula-block">
+      <h4>Score<sub>Good</sub> = exp( + [ … ] )</h4>
+      <pre><span class="exp">Score</span><span class="var">Good</span> <span class="op">=</span> <span class="func">exp</span><span class="op">(</span>
+  <span class="op">+</span> <span class="coeff">0.28498204610245</span>   <span class="op">×</span> <span class="var">LF</span>
+  <span class="op">-</span> <span class="coeff">0.0492951793604829</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>) <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
+  <span class="op">-</span> <span class="coeff">0.0970097696630778</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
+  <span class="op">-</span> <span class="coeff">0.128618766194885</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">-</span> <span class="coeff">0.0653571817634567</span>  <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)  <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">-</span> <span class="coeff">0.0765070170481534</span>  <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> <span class="func">|CAS|</span>
+  <span class="op">-</span> <span class="coeff">0.054465763653058</span>   <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
+  <span class="op">−</span> <span class="coeff">0.0268669860891494</span>  <span class="op">×</span> <span class="func">|CAS|</span><sup>2</sup>
+  <span class="op">+</span> <span class="coeff">0.163378033898795</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
+  <span class="op">-</span> <span class="coeff">0.683801733179355</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>)
+  <span class="op">+</span> <span class="coeff">0.462183083454566</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">CAS</span>)
+  <span class="op">-</span> <span class="coeff">0.347471488708366</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
+  <span class="op">+</span> <span class="coeff">0.216612009454207</span>   <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">-</span> <span class="coeff">0.34645182430784</span>    <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> <span class="func">|CAS|</span>)
+  <span class="op">+</span> <span class="coeff">0.328822044880203</span>   <span class="op">×</span> <span class="func">|CAS|</span>
+  <span class="op">+</span> <span class="coeff">0.834671717861705</span>   <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+<span class="op">)</span></pre>
+    </div>
+
+    <div class="formula-block">
+      <h4>MIRA-29 Score</h4>
+      <pre><span class="exp">MIRA-29 Score</span> <span class="op">=</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">/</span> <span class="op">(</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">+</span> <span class="exp">Score</span><span class="var">Bad</span> <span class="op">)</span>
+
+<span class="op">Interpretation:</span>
+  <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span>  <span class="exp">Good prognosis</span>
+  <span class="coeff">0.35</span> <span class="op">≤</span> <span class="func">MIRA-29 Score</span> <span class="op">≤</span> <span class="coeff">0.75</span>  <span class="op">→</span>  Intermediate prognosis
+  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span>  Poor prognosis</pre>
+    </div>
+
+    <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="ref-link">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+        <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
+      </svg>
+      Search MIRA-29 Score publication on PubMed
+    </a>
+  </div>
+
+</main>
+
+<footer>
+  <p>MIRA-29 Score Calculator · Not a substitute for clinical judgment</p>
+  <p style="margin-top:8px">Built with care &nbsp;·&nbsp; <a href="https://www.ncbi.nlm.nih.gov/pmc/" target="_blank">Literature reference</a></p>
+  <p style="margin-top:16px; font-size:0.7rem; color:#334155; letter-spacing:0.05em;">© 2026 &nbsp;·&nbsp; CHU Brest</p>
+</footer>
+
+<script>
+// ---- Logo loader ----
+function loadLogo(input, imgId) {
+  const file = input.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = document.getElementById(imgId);
+    img.src = e.target.result;
+    img.style.display = 'block';
+    input.previousElementSibling.style.display = 'none';
+  };
+  reader.readAsDataURL(file);
+}
+
+// ---- Math helpers ----
+const flr   = x => Math.floor(x);
+const cel   = x => Math.ceil(x);
+const abv   = x => Math.abs(x);
+const trunc = x => Math.trunc(x);
+const sin   = x => Math.sin(x);
+const cos   = x => Math.cos(x);
+const exp   = x => Math.exp(x);
+
+function computeScores(LF, SD, ED, CAS) {
+  const scoreBad = exp(
+    - 0.28498204610245   * LF
+    + 0.0492951793604829 * flr(SD) * cel(ED)
+    + 0.0970097696630778 * flr(ED) * flr(SD)
+    + 0.128618766194885  * flr(ED) * sin(SD)
+    + 0.0653571817634567 * cel(ED) * sin(SD)
+    + 0.0765070170481534 * cos(CAS) * abv(CAS)
+    + 0.054465763653058  * cos(CAS) ** 2
+    + 0.0268669860891494 * abv(CAS) ** 2
+    - 0.163378033898795  * flr(SD)
+    + 0.683801733179355  * flr(ED)
+    - 0.462183083454566  * cel(CAS)
+    + 0.347471488708366  * cel(ED)
+    - 0.216612009454207  * sin(SD)
+    + 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
+    - 0.328822044880203  * abv(CAS)
+    - 0.834671717861705  * trunc(-0.392849641282171 * LF)
+  );
+
+  const scoreGood = exp(
+    + 0.28498204610245   * LF
+    - 0.0492951793604829 * flr(SD) * cel(ED)
+    - 0.0970097696630778 * flr(ED) * flr(SD)
+    - 0.128618766194885  * flr(ED) * sin(SD)
+    - 0.0653571817634567 * cel(ED) * sin(SD)
+    - 0.0765070170481534 * cos(CAS) * abv(CAS)
+    - 0.054465763653058  * cos(CAS) ** 2
+    - 0.0268669860891494 * abv(CAS) ** 2
+    + 0.163378033898795  * flr(SD)
+    - 0.683801733179355  * flr(ED)
+    + 0.462183083454566  * cel(CAS)
+    - 0.347471488708366  * cel(ED)
+    + 0.216612009454207  * sin(SD)
+    - 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
+    + 0.328822044880203  * abv(CAS)
+    + 0.834671717861705  * trunc(-0.392849641282171 * LF)
+  );
+
+  return { scoreBad, scoreGood };
+}
+
+function calculate() {
+  const LF  = parseFloat(document.getElementById('lf').value);
+  const SD  = parseFloat(document.getElementById('shock').value);
+  const ED  = parseFloat(document.getElementById('epi').value);
+  const CAS = parseFloat(document.getElementById('site').value);
+
+  // Validation
+  if (isNaN(LF) || document.getElementById('lf').value === '') {
+    alert('Please enter a valid Low Flow duration (minutes).'); return;
+  }
+  if (isNaN(ED) || document.getElementById('epi').value === '') {
+    alert('Please enter a valid Epinephrine Dose (mg).'); return;
+  }
+  if (isNaN(CAS)) {
+    alert('Please select a Cardiac Arrest Site.'); return;
+  }
+
+  const { scoreBad, scoreGood } = computeScores(LF, SD, ED, CAS);
+  const mira = scoreGood / (scoreGood + scoreBad);
+
+  // 3-zone classification
+  let zone, zoneLabel, zoneIcon, zoneSub;
+  if (mira < 0.35) {
+    zone = 'good';
+    zoneLabel = 'Good Prognosis';
+    zoneIcon  = '✅';
+    zoneSub   = 'MIRA Score < 0.35 — Favourable neurological outcome predicted';
+  } else if (mira <= 0.75) {
+    zone = 'intermediate';
+    zoneLabel = 'Intermediate';
+    zoneIcon  = '⚠️';
+    zoneSub   = 'MIRA Score 0.35 – 0.75 — Uncertain prognosis, close monitoring required';
+  } else {
+    zone = 'bad';
+    zoneLabel = 'Poor Prognosis';
+    zoneIcon  = '🔴';
+    zoneSub   = 'MIRA Score > 0.75 — Unfavourable neurological outcome predicted';
+  }
+
+  // Show result
+  const section = document.getElementById('result-section');
+  const card    = document.getElementById('result-card');
+  const icon    = document.getElementById('result-icon');
+  const label   = document.getElementById('result-label');
+  const score   = document.getElementById('result-score');
+  const sub     = document.getElementById('result-sub');
+  const bar     = document.getElementById('score-bar');
+  const needle  = document.getElementById('score-needle');
+  const grid    = document.getElementById('breakdown-grid');
+
+  section.style.display = 'block';
+
+  card.className   = 'result-card ' + zone;
+  icon.textContent  = zoneIcon;
+  label.className   = 'result-label ' + zone;
+  label.textContent = zoneLabel;
+  score.className   = 'result-score ' + zone;
+  score.textContent = mira.toFixed(4);
+  sub.textContent   = zoneSub;
+
+  bar.className = 'score-bar ' + zone;
+  const pct = Math.min(mira * 100, 100);
+  setTimeout(() => {
+    bar.style.width  = pct + '%';
+    needle.style.left = pct + '%';
+  }, 50);
+
+  grid.innerHTML = `
+    <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${['< 20 min', '20 – 45 min', '> 45 min'][LF]}</div></div>
+    <div class="breakdown-item"><div class="lbl">Shock Delivery</div><div class="val">${SD.toFixed(1)}</div></div>
+    <div class="breakdown-item"><div class="lbl">Epinephrine Dose</div><div class="val">${ED.toFixed(1)} mg</div></div>
+    <div class="breakdown-item"><div class="lbl">Cardiac Arrest Site</div><div class="val">${['Street','Public facilities','Home'][CAS]}</div></div>
+    <div class="breakdown-item"><div class="lbl">Score<sub>Good</sub></div><div class="val">${scoreGood.toFixed(6)}</div></div>
+    <div class="breakdown-item"><div class="lbl">Score<sub>Bad</sub></div><div class="val">${scoreBad.toFixed(6)}</div></div>
+    <div class="breakdown-item" style="grid-column:1/-1;border-color:var(--accent);background:rgba(56,189,248,0.05)">
+      <div class="lbl">MIRA-29 Score = Score<sub>Good</sub> / ( Score<sub>Good</sub> + Score<sub>Bad</sub> )</div>
+      <div class="val" style="font-size:1.1rem">${mira.toFixed(6)}</div>
+    </div>
+  `;
+
+  section.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+</script>
+</body>
+</html>
