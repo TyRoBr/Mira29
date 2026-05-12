@@ -598,16 +598,16 @@
     <div class="form-body">
 
         <!-- Low Flow -->
-        <div class="input-group">
-            <label class="input-label" for="Low-Flow">Duration of low brain perfusion</label>
-            <div class="input-desc">Cumuation of No Flow / Low Flow duration time</div>
-            <select id="lf">
-                <option value="" disabled selected>— Select LF duration time —</option>
-                <option value="0">< 20 minutes (0)</option>
-                <option value="1">20-45 minutes (1)</option>
-                <option value="2">> 45 minutes (2)</option>
-            </select>
-        </div>
+            <div class="input-group">
+                <label class="input-label" for="lf">Low Flow <span class="unit">— continuous</span></label>
+                <div class="input-desc">Low Flow duration time</div>
+                <div class="slider-value" id="shock-display">0</div>
+                <div class="slider-wrapper">
+                    <input type="range" id="shock" min="0" max="50" step="1" value="0"
+                           oninput="document.getElementById('shock-display').textContent = parseFloat(this.value).toFixed(1)">
+                </div>
+                <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+            </div>
 
         <div class="grid-2">
             <!-- Shock Delivery -->
@@ -661,14 +661,14 @@
                 </div>
                 <div class="bar-labels">
                     <span>0.00</span>
-                    <span style="position:absolute;left:35%;transform:translateX(-50%);color:var(--good)">0.35</span>
-                    <span style="position:absolute;left:75%;transform:translateX(-50%);color:var(--bad)">0.75</span>
+                    <span style="position:absolute;left:35%;transform:translateX(-50%);color:var(--bad)">0.35</span>
+                    <span style="position:absolute;left:75%;transform:translateX(-50%);color:var(--good)">0.75</span>
                     <span>1.00</span>
                 </div>
                 <div style="display:flex;justify-content:space-between;font-size:0.62rem;margin-top:14px;font-family:'DM Mono',monospace;">
-                    <span style="color:var(--good);width:35%;text-align:center">● Good prognosis</span>
+                    <span style="color:var(--bad);width:35%;text-align:center">● Poor prognosis</span>
                     <span style="color:var(--intermediate);width:40%;text-align:center">● Intermediate</span>
-                    <span style="color:var(--bad);width:25%;text-align:center">● Poor prognosis</span>
+                    <span style="color:var(--good);width:25%;text-align:center">● Good prognosis</span>
                 </div>
                 <div class="breakdown-grid" id="breakdown-grid"></div>
             </div>
@@ -685,7 +685,7 @@
     <div class="formula-note">
       <strong>Variables:</strong> LF = Low Flow (minutes) · SD = Shock Delivery (number of Shock) · ED = Epinephrine Dose (mg) · CAS = Cardiac Arrest Site (0 = Street, 1 = Public Facilities, 2 = Home).<br>
       <strong>MIRA-29 Score</strong> = Score<sub>Good</sub> / (Score<sub>Good</sub> + Score<sub>Bad</sub>) — interpreted as the probability of neurological outcome.
-      A score <strong>&lt; 0.35</strong> indicates <strong style="color:#10b981">Good Prognosis</strong> · a score between <strong>0.35 and 0.75</strong> indicates <strong style="color:#f59e0b">Intermediate Prognosis</strong> · a score <strong>&gt; 0.75</strong> indicates <strong style="color:#ef4444">Poor Prognosis</strong>.
+      A score <strong>&lt; 0.35</strong> indicates <strong style="color:#ef4444">Poor Prognosis</strong> · a score between <strong>0.35 and 0.75</strong> indicates <strong style="color:#f59e0b">Intermediate Prognosis</strong> · a score <strong>&gt; 0.75</strong> indicates <strong style="color:#10b981">Good Prognosis</strong>.
     </div>
 
     <div class="formula-block">
@@ -737,9 +737,9 @@
       <pre><span class="exp">MIRA-29 Score</span> <span class="op">=</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">/</span> <span class="op">(</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">+</span> <span class="exp">Score</span><span class="var">Bad</span> <span class="op">)</span>
 
 <span class="op">Interpretation:</span>
-  <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span>  <span class="exp">Good prognosis</span>
+  <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span>  <span class="exp">Poor prognosis</span>
   <span class="coeff">0.35</span> <span class="op">≤</span> <span class="func">MIRA-29 Score</span> <span class="op">≤</span> <span class="coeff">0.75</span>  <span class="op">→</span>  Intermediate prognosis
-  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span>  Poor prognosis</pre>
+  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span>  Good prognosis</pre>
     </div>
 
     <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="ref-link">
@@ -848,20 +848,20 @@ function calculate() {
   // 3-zone classification
   let zone, zoneLabel, zoneIcon, zoneSub;
   if (mira < 0.35) {
-    zone = 'good';
-    zoneLabel = 'Good Prognosis';
-    zoneIcon  = '✅';
-    zoneSub   = 'MIRA Score < 0.35 — Favourable neurological outcome predicted';
+    zone = 'bad';
+    zoneLabel = 'Bad Prognosis';
+    zoneIcon  = '🔴';
+    zoneSub   = 'MIRA Score < 0.35 — Unfavourable neurological outcome predicted';
   } else if (mira <= 0.75) {
     zone = 'intermediate';
     zoneLabel = 'Intermediate';
     zoneIcon  = '⚠️';
     zoneSub   = 'MIRA Score 0.35 – 0.75 — Uncertain prognosis, close monitoring required';
   } else {
-    zone = 'bad';
-    zoneLabel = 'Poor Prognosis';
-    zoneIcon  = '🔴';
-    zoneSub   = 'MIRA Score > 0.75 — Unfavourable neurological outcome predicted';
+    zone = 'good';
+    zoneLabel = 'Good Prognosis';
+    zoneIcon  = ''✅';
+    zoneSub   = 'MIRA Score > 0.75 — Favourable neurological outcome predicted';
   }
 
   // Show result
@@ -893,7 +893,7 @@ function calculate() {
   }, 50);
 
   grid.innerHTML = `
-    <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${['< 20 min', '20 – 45 min', '> 45 min'][LF]}</div></div>
+    <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${LF.toFixed(1)}</div></div>
     <div class="breakdown-item"><div class="lbl">Shock Delivery</div><div class="val">${SD.toFixed(1)}</div></div>
     <div class="breakdown-item"><div class="lbl">Epinephrine Dose</div><div class="val">${ED.toFixed(1)} mg</div></div>
     <div class="breakdown-item"><div class="lbl">Cardiac Arrest Site</div><div class="val">${['Street','Public facilities','Home'][CAS]}</div></div>
