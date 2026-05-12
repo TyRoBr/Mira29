@@ -601,10 +601,10 @@
             <div class="input-group">
                 <label class="input-label" for="lf">Low Flow <span class="unit">— continuous</span></label>
                 <div class="input-desc">Low Flow duration time</div>
-                <div class="slider-value" id="shock-display">0</div>
+                <div class="slider-value" id="lf-display">0</div>
                 <div class="slider-wrapper">
-                    <input type="range" id="shock" min="0" max="50" step="1" value="0"
-                           oninput="document.getElementById('shock-display').textContent = parseFloat(this.value).toFixed(1)">
+                    <input type="range" id="lf" min="0" max="50" step="1" value="0"
+                           oninput="document.getElementById('lf-display').textContent = parseFloat(this.value).toFixed(1)">
                 </div>
                 <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
             </div>
@@ -832,9 +832,6 @@ function calculate() {
   const CAS = parseFloat(document.getElementById('site').value);
 
   // Validation
-  if (isNaN(LF) || document.getElementById('lf').value === '') {
-    alert('Please enter a valid Low Flow duration (minutes).'); return;
-  }
   if (isNaN(ED) || document.getElementById('epi').value === '') {
     alert('Please enter a valid Epinephrine Dose (mg).'); return;
   }
@@ -860,7 +857,7 @@ function calculate() {
   } else {
     zone = 'good';
     zoneLabel = 'Good Prognosis';
-    zoneIcon  = ''✅';
+    zoneIcon  = '✅';
     zoneSub   = 'MIRA Score > 0.75 — Favourable neurological outcome predicted';
   }
 
