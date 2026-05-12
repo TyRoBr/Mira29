@@ -366,13 +366,14 @@
     height: 14px;
     overflow: visible;
     position: relative;
-    background: linear-gradient(90deg,
-      rgba(16,185,129,0.25) 0%,
-      rgba(16,185,129,0.25) 35%,
+    background: linear-gradient(
+      90deg,
+      rgba(239,68,68,0.25)   0%,
+      rgba(239,68,68,0.25)  35%,
       rgba(245,158,11,0.25) 35%,
       rgba(245,158,11,0.25) 75%,
-      rgba(239,68,68,0.25) 75%,
-      rgba(239,68,68,0.25) 100%
+      rgba(16,185,129,0.25) 75%,
+      rgba(16,185,129,0.25) 100%
     );
   }
   /* threshold tick at 0.35 */
@@ -382,7 +383,7 @@
     left: 35%;
     top: -3px; bottom: -3px;
     width: 2px;
-    background: rgba(16,185,129,0.7);
+    background: rgba(239,68,68,0.7);
     border-radius: 2px;
     z-index: 2;
   }
@@ -393,7 +394,7 @@
     left: 75%;
     top: -3px; bottom: -3px;
     width: 2px;
-    background: rgba(239,68,68,0.7);
+    background: rgba(16,185,129,0.7);
     border-radius: 2px;
     z-index: 2;
   }
@@ -601,12 +602,12 @@
             <div class="input-group">
                 <label class="input-label" for="lf">Low Flow <span class="unit">— continuous</span></label>
                 <div class="input-desc">Low Flow duration time</div>
-                <div class="slider-value" id="lf-display">0</div>
+                <div class="slider-value" id="lf-display">0 min</div>
                 <div class="slider-wrapper">
                     <input type="range" id="lf" min="0" max="50" step="1" value="0"
-                           oninput="document.getElementById('lf-display').textContent = parseFloat(this.value).toFixed(1)">
+                            oninput="document.getElementById('lf-display').textContent = this.value + ' min'">
                 </div>
-                <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
+                <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span><span>40</span><span>45</span><span>50</span></div>
             </div>
 
         <div class="grid-2">
@@ -890,7 +891,7 @@ function calculate() {
   }, 50);
 
   grid.innerHTML = `
-    <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${LF.toFixed(1)}</div></div>
+    <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${LF} min</div></div>
     <div class="breakdown-item"><div class="lbl">Shock Delivery</div><div class="val">${SD.toFixed(1)}</div></div>
     <div class="breakdown-item"><div class="lbl">Epinephrine Dose</div><div class="val">${ED.toFixed(1)} mg</div></div>
     <div class="breakdown-item"><div class="lbl">Cardiac Arrest Site</div><div class="val">${['Street','Public facilities','Home'][CAS]}</div></div>
