@@ -738,9 +738,9 @@
       <pre><span class="exp">MIRA-29 Score</span> <span class="op">=</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">/</span> <span class="op">(</span> <span class="exp">Score</span><span class="var">Good</span> <span class="op">+</span> <span class="exp">Score</span><span class="var">Bad</span> <span class="op">)</span>
 
 <span class="op">Interpretation:</span>
-  <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span>  <span class="exp">Poor prognosis</span>
+  <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span> Poor prognosis
   <span class="coeff">0.35</span> <span class="op">≤</span> <span class="func">MIRA-29 Score</span> <span class="op">≤</span> <span class="coeff">0.75</span>  <span class="op">→</span>  Intermediate prognosis
-  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span>  Good prognosis</pre>
+  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span> <span class="exp"> Good prognosis </span>span></pre>
     </div>
 
     <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="ref-link">
@@ -754,54 +754,52 @@
 
 </main>
 
-  <!-- À placer juste avant </footer>, par ex. -->
-<p id="visit-stats" style="margin-top:8px; font-family:'DM Mono',monospace; font-size:0.7rem; color:#334155;">
-  Visites : <span id="visit-count">…</span> · Visiteurs uniques : <span id="unique-count">…</span>
-</p>
-
 <script>
 (function() {
-  // Remplacez "mira29-score-chu-brest" par un identifiant unique à votre site
-  const NAMESPACE = "mira29-score-chu-brest";
-  const VISITS_KEY = "visits";
-  const UNIQUE_KEY = "unique-visitors";
+  // Nouveau service de remplacement (countapi.xyz est mort)
+  const BASE = "https://countapi.mileshilliard.com/api/v1";
+  // Utilisez une clé bien unique pour éviter tout conflit (toutes les clés sont publiques)
+  const VISITS_KEY = "mira29-chu-brest-visits-9f3a";
+  const UNIQUE_KEY  = "mira29-chu-brest-unique-9f3a";
 
-  async function countapiHit(key) {
-    const res = await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${key}`);
+  async function hit(key) {
+    const res = await fetch(`${BASE}/hit/${key}`);
+    if (!res.ok) throw new Error('hit failed: ' + res.status);
     const data = await res.json();
     return data.value;
   }
-  async function countapiGet(key) {
-    const res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${key}`);
+  async function get(key) {
+    const res = await fetch(`${BASE}/get/${key}`);
+    if (!res.ok) throw new Error('get failed: ' + res.status);
     const data = await res.json();
     return data.value ?? 0;
   }
 
   async function updateStats() {
     try {
-      // Compte à chaque chargement de page = "visites"
-      const totalVisits = await countapiHit(VISITS_KEY);
+      const totalVisits = await hit(VISITS_KEY);
       document.getElementById('visit-count').textContent = totalVisits;
 
-      // "Unique" : on incrémente seulement si ce navigateur n'est jamais venu
       let uniqueCount;
       if (!localStorage.getItem('mira29_visited')) {
         localStorage.setItem('mira29_visited', '1');
-        uniqueCount = await countapiHit(UNIQUE_KEY);
+        uniqueCount = await hit(UNIQUE_KEY);
       } else {
-        uniqueCount = await countapiGet(UNIQUE_KEY);
+        uniqueCount = await get(UNIQUE_KEY);
       }
       document.getElementById('unique-count').textContent = uniqueCount;
     } catch (e) {
       console.error('Erreur compteur de visites :', e);
-      document.getElementById('visit-stats').style.display = 'none';
+      // On masque discrètement plutôt que de laisser "…" affiché indéfiniment
+      const el = document.getElementById('visit-stats');
+      if (el) el.style.display = 'none';
     }
   }
 
   updateStats();
 })();
 </script>
-
+  
 <footer>
   <p>MIRA-29 Score Calculator · Not a substitute for clinical judgment</p>
   <p style="margin-top:8px">Built with care &nbsp;·&nbsp; <a href="https://www.ncbi.nlm.nih.gov/pmc/" target="_blank">Literature reference</a></p>
