@@ -639,9 +639,9 @@
             <div class="input-desc">Location where cardiac arrest occurred</div>
             <select id="site">
                 <option value="" disabled selected>— Select location —</option>
-                <option value="0">Street (0)</option>
+                <option value="0">Home (0)</option>
                 <option value="1">Public Facilities (1)</option>
-                <option value="2">Home (2)</option>
+                <option value="2">Street (2)</option>
             </select>
         </div>
 
@@ -753,6 +753,54 @@
   </div>
 
 </main>
+
+  <!-- À placer juste avant </footer>, par ex. -->
+<p id="visit-stats" style="margin-top:8px; font-family:'DM Mono',monospace; font-size:0.7rem; color:#334155;">
+  Visites : <span id="visit-count">…</span> · Visiteurs uniques : <span id="unique-count">…</span>
+</p>
+
+<script>
+(function() {
+  // Remplacez "mira29-score-chu-brest" par un identifiant unique à votre site
+  const NAMESPACE = "mira29-score-chu-brest";
+  const VISITS_KEY = "visits";
+  const UNIQUE_KEY = "unique-visitors";
+
+  async function countapiHit(key) {
+    const res = await fetch(`https://api.countapi.xyz/hit/${NAMESPACE}/${key}`);
+    const data = await res.json();
+    return data.value;
+  }
+  async function countapiGet(key) {
+    const res = await fetch(`https://api.countapi.xyz/get/${NAMESPACE}/${key}`);
+    const data = await res.json();
+    return data.value ?? 0;
+  }
+
+  async function updateStats() {
+    try {
+      // Compte à chaque chargement de page = "visites"
+      const totalVisits = await countapiHit(VISITS_KEY);
+      document.getElementById('visit-count').textContent = totalVisits;
+
+      // "Unique" : on incrémente seulement si ce navigateur n'est jamais venu
+      let uniqueCount;
+      if (!localStorage.getItem('mira29_visited')) {
+        localStorage.setItem('mira29_visited', '1');
+        uniqueCount = await countapiHit(UNIQUE_KEY);
+      } else {
+        uniqueCount = await countapiGet(UNIQUE_KEY);
+      }
+      document.getElementById('unique-count').textContent = uniqueCount;
+    } catch (e) {
+      console.error('Erreur compteur de visites :', e);
+      document.getElementById('visit-stats').style.display = 'none';
+    }
+  }
+
+  updateStats();
+})();
+</script>
 
 <footer>
   <p>MIRA-29 Score Calculator · Not a substitute for clinical judgment</p>
