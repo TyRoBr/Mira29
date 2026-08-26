@@ -753,57 +753,38 @@
   </div>
 
 </main>
-
-<script>
-(function() {
-  // Nouveau service de remplacement (countapi.xyz est mort)
-  const BASE = "https://countapi.mileshilliard.com/api/v1";
-  // Utilisez une clé bien unique pour éviter tout conflit (toutes les clés sont publiques)
-  const VISITS_KEY = "mira29-chu-brest-visits-9f3a";
-  const UNIQUE_KEY  = "mira29-chu-brest-unique-9f3a";
-
-  async function hit(key) {
-    const res = await fetch(`${BASE}/hit/${key}`);
-    if (!res.ok) throw new Error('hit failed: ' + res.status);
-    const data = await res.json();
-    return data.value;
-  }
-  async function get(key) {
-    const res = await fetch(`${BASE}/get/${key}`);
-    if (!res.ok) throw new Error('get failed: ' + res.status);
-    const data = await res.json();
-    return data.value ?? 0;
-  }
-
-  async function updateStats() {
-    try {
-      const totalVisits = await hit(VISITS_KEY);
-      document.getElementById('visit-count').textContent = totalVisits;
-
-      let uniqueCount;
-      if (!localStorage.getItem('mira29_visited')) {
-        localStorage.setItem('mira29_visited', '1');
-        uniqueCount = await hit(UNIQUE_KEY);
-      } else {
-        uniqueCount = await get(UNIQUE_KEY);
-      }
-      document.getElementById('unique-count').textContent = uniqueCount;
-    } catch (e) {
-      console.error('Erreur compteur de visites :', e);
-      // On masque discrètement plutôt que de laisser "…" affiché indéfiniment
-      const el = document.getElementById('visit-stats');
-      if (el) el.style.display = 'none';
-    }
-  }
-
-  updateStats();
-})();
-</script>
   
 <footer>
   <p>MIRA-29 Score Calculator · Not a substitute for clinical judgment</p>
   <p style="margin-top:8px">Built with care &nbsp;·&nbsp; <a href="https://www.ncbi.nlm.nih.gov/pmc/" target="_blank">Literature reference</a></p>
   <p style="margin-top:16px; font-size:0.7rem; color:#334155; letter-spacing:0.05em;">© 2026 &nbsp;·&nbsp; CHU Brest</p>
+  <p id="visit-stats" style="margin-top:8px;">
+  <img id="visits-badge" alt="Visites" style="vertical-align:middle;height:20px;">
+  <img id="unique-badge" alt="Visiteurs uniques" style="vertical-align:middle;height:20px;margin-left:6px;">
+</p>
+
+<script>
+(function() {
+  const BASE = "https://countapi.mileshilliard.com/api/v1";
+  const VISITS_KEY = "mira29-chu-brest-visits-9f3a";
+  const UNIQUE_KEY  = "mira29-chu-brest-unique-9f3a";
+
+  const visitsImg = document.getElementById('visits-badge');
+  const uniqueImg = document.getElementById('unique-badge');
+
+  // Compteur de visites : incrémenté à chaque chargement
+  visitsImg.src = `${BASE}/hit/${VISITS_KEY}/shield?text=visites&bgcolor=0ea5e9&textcolor=ffffff&style=flat`;
+
+  // Compteur unique : incrémenté seulement si jamais vu sur ce navigateur
+  if (!localStorage.getItem('mira29_visited')) {
+    localStorage.setItem('mira29_visited', '1');
+    uniqueImg.src = `${BASE}/hit/${UNIQUE_KEY}/shield?text=visiteurs%20uniques&bgcolor=10b981&textcolor=ffffff&style=flat`;
+  } else {
+    uniqueImg.src = `${BASE}/get/${UNIQUE_KEY}/shield?text=visiteurs%20uniques&bgcolor=10b981&textcolor=ffffff&style=flat`;
+  }
+})();
+</script>
+  
 </footer>
 
 <script>
