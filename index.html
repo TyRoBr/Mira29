@@ -806,7 +806,10 @@ function loadLogo(input, imgId) {
 const flr   = x => Math.floor(x);
 const cel   = x => Math.ceil(x);
 const abv   = x => Math.abs(x);
-const trunc = x => Math.trunc(x);
+const trunc = (x, decimals = 0) => {
+  const factor = Math.pow(10, decimals);
+  return Math.trunc(x * factor) / factor;
+};
 const sin   = x => Math.sin(x);
 const cos   = x => Math.cos(x);
 const exp   = x => Math.exp(x);
@@ -828,7 +831,7 @@ function computeScores(LF, SD, ED, CAS) {
     - 0.216612009454207  * sin(SD)
     + 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
     - 0.328822044880203  * abv(CAS)
-    - 0.834671717861705  * trunc(-0.392849641282171 * LF)
+    - 0.834671717861705  * trunc(-0.392849641282171 * LF,1)
   );
 
   const scoreGood = exp(
@@ -847,7 +850,7 @@ function computeScores(LF, SD, ED, CAS) {
     + 0.216612009454207  * sin(SD)
     - 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
     + 0.328822044880203  * abv(CAS)
-    + 0.834671717861705  * trunc(-0.392849641282171 * LF)
+    + 0.834671717861705  * trunc(-0.392849641282171 * LF,1)
   );
 
   return { scoreBad, scoreGood };
