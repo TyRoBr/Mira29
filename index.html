@@ -613,12 +613,12 @@
         <div class="grid-2">
             <!-- Shock Delivery -->
             <div class="input-group">
-                <label class="input-label" for="shock">Shock Delivery <span class="unit">— continuous</span></label>
-                <div class="input-desc">Number of defibrillations delivered</div>
-                <div class="slider-value" id="shock-display">0</div>
+                <label class="input-label" for="shock">Shock Delivery <span class="unit">— number of shocks</span></label>
+                <div class="input-desc">Number of defibrillations delivered delivered during resuscitation</div>
+                <div class="slider-value" id="shock-display">0 shock</div>
                 <div class="slider-wrapper">
-                    <input type="range" id="shock" min="0" max="1" step="1" value="0"
-                           oninput="document.getElementById('shock-display').textContent = parseFloat(this.value).toFixed(1)">
+                    <input type="range" id="shock" min="0" max="20" step="1" value="0"
+                           oninput="document.getElementById('shock-display').textContent = this.value + (this.value > 1 ? ' shocks' : ' shock')">
                 </div>
                 <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
             </div>
@@ -627,7 +627,7 @@
             <div class="input-group">
                 <label class="input-label" for="epi">Epinephrine Dose <span class="unit">— mg</span></label>
                 <div class="input-desc">Total cumulative dose of epinephrine administered (mg)</div>
-                <input type="number" id="epi" min="0" step="1" placeholder="e.g. 3" />
+                <input type="number" id="epi" min="0" step="any" placeholder="e.g. 3" />
             </div>
         </div>
 
@@ -681,55 +681,51 @@
   <!-- FORMULA -->
   <div class="formula-section">
     <h3>Model Formula</h3>
-    <p class="subtitle">Complete mathematical definition of the MIRA-29 scoring model</p>
+    <p class="subtitle">Complete mathematical definition of the MIRA-29 scoring model — version with recalibrated epinephrine weight</p>
 
     <div class="formula-note">
-      <strong>Variables:</strong> LF = Low Flow (minutes) · SD = Shock Delivery (number of Shock) · ED = Epinephrine Dose (mg) · CAS = Cardiac Arrest Site (0 = Street, 1 = Public Facilities, 2 = Home).<br>
+      <strong>Variables:</strong> LF = Low Flow (minutes) · SD = Shock Delivery (number of shocks) · ED = cumulative Epinephrine Dose (mg) · CAS = Cardiac Arrest Site (0 = Home, 1 = Public Facilities, 2 = Street).<br>
+      <strong>Rounding:</strong> rdown, rup and trunc round down, round up and truncate to <strong>one decimal place</strong> (Excel ROUNDDOWN / ROUNDUP / TRUNC with 1 digit).<br>
+      <strong>Recalibration:</strong> the six original epinephrine terms are replaced by two terms re-estimated on the training cohort by logistic regression, all other coefficients unchanged.<br>
       <strong>MIRA-29 Score</strong> = Score<sub>Good</sub> / (Score<sub>Good</sub> + Score<sub>Bad</sub>) — interpreted as the probability of neurological outcome.
       A score <strong>&lt; 0.35</strong> indicates <strong style="color:#ef4444">Poor Prognosis</strong> · a score between <strong>0.35 and 0.75</strong> indicates <strong style="color:#f59e0b">Intermediate Prognosis</strong> · a score <strong>&gt; 0.75</strong> indicates <strong style="color:#10b981">Good Prognosis</strong>.
     </div>
 
     <div class="formula-block">
-      <h4>Score<sub>Bad</sub> = exp( − [ … ] )</h4>
+      <h4>Score<sub>Bad</sub> = exp( + [ … ] )</h4>
       <pre><span class="exp">Score</span><span class="var">Bad</span> <span class="op">=</span> <span class="func">exp</span><span class="op">(</span>
-  <span class="op">−</span> <span class="coeff">0.28498204610245</span>   <span class="op">×</span> <span class="var">LF</span>
-  <span class="op">+</span> <span class="coeff">0.0492951793604829</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>) <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
-  <span class="op">+</span> <span class="coeff">0.0970097696630778</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
-  <span class="op">+</span> <span class="coeff">0.128618766194885</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">+</span> <span class="coeff">0.0653571817634567</span>  <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)  <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">+</span> <span class="coeff">0.0765070170481534</span>  <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> <span class="func">|CAS|</span>
-  <span class="op">+</span> <span class="coeff">0.054465763653058</span>   <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
-  <span class="op">+</span> <span class="coeff">0.0268669860891494</span>  <span class="op">×</span> <span class="func">|CAS|</span><sup>2</sup>
-  <span class="op">−</span> <span class="coeff">0.163378033898795</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
-  <span class="op">+</span> <span class="coeff">0.683801733179355</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>)
-  <span class="op">−</span> <span class="coeff">0.462183083454566</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">CAS</span>)
-  <span class="op">+</span> <span class="coeff">0.347471488708366</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
-  <span class="op">-</span> <span class="coeff">0.216612009454207</span>   <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">+</span> <span class="coeff">0.34645182430784</span>    <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> <span class="func">|CAS|</span>)
-  <span class="op">−</span> <span class="coeff">0.328822044880203</span>   <span class="op">×</span> <span class="func">|CAS|</span>
-  <span class="op">−</span> <span class="coeff">0.834671717861705</span>   <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+  <span class="op">−</span> <span class="coeff">0.28498204610245  </span> <span class="op">×</span> <span class="var">LF</span>
+  <span class="op">+</span> <span class="coeff">0.0765070170481534</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> |<span class="var">CAS</span>|
+  <span class="op">+</span> <span class="coeff">0.054465763653058 </span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
+  <span class="op">+</span> <span class="coeff">0.0268669860891494</span> <span class="op">×</span> |<span class="var">CAS</span>|<sup>2</sup>
+  <span class="op">−</span> <span class="coeff">0.163378033898795 </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
+  <span class="op">−</span> <span class="coeff">0.462183083454566 </span> <span class="op">×</span> <span class="func">rup</span>(<span class="var">CAS</span>)
+  <span class="op">−</span> <span class="coeff">0.216612009454207 </span> <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.34645182430784  </span> <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> |<span class="var">CAS</span>|)
+  <span class="op">−</span> <span class="coeff">0.328822044880203 </span> <span class="op">×</span> |<span class="var">CAS</span>|
+  <span class="op">−</span> <span class="coeff">0.834671717861705 </span> <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+  <span class="op">// recalibrated epinephrine terms</span>
+  <span class="op">+</span> <span class="coeff">0.5742840863      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>)
+  <span class="op">−</span> <span class="coeff">0.0171921303      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
 <span class="op">)</span></pre>
     </div>
 
     <div class="formula-block">
-      <h4>Score<sub>Good</sub> = exp( + [ … ] )</h4>
+      <h4>Score<sub>Good</sub> = exp( − [ … ] ) = 1 / Score<sub>Bad</sub></h4>
       <pre><span class="exp">Score</span><span class="var">Good</span> <span class="op">=</span> <span class="func">exp</span><span class="op">(</span>
-  <span class="op">+</span> <span class="coeff">0.28498204610245</span>   <span class="op">×</span> <span class="var">LF</span>
-  <span class="op">-</span> <span class="coeff">0.0492951793604829</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>) <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
-  <span class="op">-</span> <span class="coeff">0.0970097696630778</span>  <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
-  <span class="op">-</span> <span class="coeff">0.128618766194885</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">-</span> <span class="coeff">0.0653571817634567</span>  <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)  <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">-</span> <span class="coeff">0.0765070170481534</span>  <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> <span class="func">|CAS|</span>
-  <span class="op">-</span> <span class="coeff">0.054465763653058</span>   <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
-  <span class="op">−</span> <span class="coeff">0.0268669860891494</span>  <span class="op">×</span> <span class="func">|CAS|</span><sup>2</sup>
-  <span class="op">+</span> <span class="coeff">0.163378033898795</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">SD</span>)
-  <span class="op">-</span> <span class="coeff">0.683801733179355</span>   <span class="op">×</span> <span class="func">floor</span>(<span class="var">ED</span>)
-  <span class="op">+</span> <span class="coeff">0.462183083454566</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">CAS</span>)
-  <span class="op">-</span> <span class="coeff">0.347471488708366</span>   <span class="op">×</span> <span class="func">ceil</span>(<span class="var">ED</span>)
-  <span class="op">+</span> <span class="coeff">0.216612009454207</span>   <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
-  <span class="op">-</span> <span class="coeff">0.34645182430784</span>    <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> <span class="func">|CAS|</span>)
-  <span class="op">+</span> <span class="coeff">0.328822044880203</span>   <span class="op">×</span> <span class="func">|CAS|</span>
-  <span class="op">+</span> <span class="coeff">0.834671717861705</span>   <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+  <span class="op">+</span> <span class="coeff">0.28498204610245  </span> <span class="op">×</span> <span class="var">LF</span>
+  <span class="op">−</span> <span class="coeff">0.0765070170481534</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">×</span> |<span class="var">CAS</span>|
+  <span class="op">−</span> <span class="coeff">0.054465763653058 </span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>)<sup>2</sup>
+  <span class="op">−</span> <span class="coeff">0.0268669860891494</span> <span class="op">×</span> |<span class="var">CAS</span>|<sup>2</sup>
+  <span class="op">+</span> <span class="coeff">0.163378033898795 </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
+  <span class="op">+</span> <span class="coeff">0.462183083454566 </span> <span class="op">×</span> <span class="func">rup</span>(<span class="var">CAS</span>)
+  <span class="op">+</span> <span class="coeff">0.216612009454207 </span> <span class="op">×</span> <span class="func">sin</span>(<span class="var">SD</span>)
+  <span class="op">−</span> <span class="coeff">0.34645182430784  </span> <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> |<span class="var">CAS</span>|)
+  <span class="op">+</span> <span class="coeff">0.328822044880203 </span> <span class="op">×</span> |<span class="var">CAS</span>|
+  <span class="op">+</span> <span class="coeff">0.834671717861705 </span> <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
+  <span class="op">// recalibrated epinephrine terms</span>
+  <span class="op">−</span> <span class="coeff">0.5742840863      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>)
+  <span class="op">+</span> <span class="coeff">0.0171921303      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
 <span class="op">)</span></pre>
     </div>
 
@@ -740,7 +736,7 @@
 <span class="op">Interpretation:</span>
   <span class="func">MIRA-29 Score</span> <span class="op">&lt;</span>  <span class="coeff">0.35</span>              <span class="op">→</span> Poor prognosis
   <span class="coeff">0.35</span> <span class="op">≤</span> <span class="func">MIRA-29 Score</span> <span class="op">≤</span> <span class="coeff">0.75</span>  <span class="op">→</span>  Intermediate prognosis
-  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span> <span class="exp"> Good prognosis </span>span></pre>
+  <span class="func">MIRA-29 Score</span> <span class="op">&gt;</span>  <span class="coeff">0.75</span>              <span class="op">→</span> <span class="exp"> Good prognosis </span></pre>
     </div>
 
     <a href="https://pubmed.ncbi.nlm.nih.gov/" target="_blank" class="ref-link">
@@ -802,63 +798,45 @@ function loadLogo(input, imgId) {
   reader.readAsDataURL(file);
 }
 
-// ---- Math helpers ----
-const flr = (x, d = 1) => { const f = 10 ** d; return Math.trunc(Math.round(x * f * 1e9) / 1e9) / f; };
-const cel = (x, d = 1) => { const f = 10 ** d; const v = Math.round(x * f * 1e9) / 1e9; return (v >= 0 ? Math.ceil(v) : Math.floor(v)) / f; };
+// ---- Math helpers (exact equivalents of Excel, 1 decimal place) ----
+// rdown = ARRONDI.INF(x; 1), rup = ARRONDI.SUP(x; 1), trunc = TRONQUE(x; 1).
+// Math.round(x * f * 1e9) / 1e9 removes floating-point noise (e.g. 1.1 * 10 = 11.000000000000002).
+const rdown = (x, d = 1) => { const f = 10 ** d; return Math.trunc(Math.round(x * f * 1e9) / 1e9) / f; };
+const rup   = (x, d = 1) => { const f = 10 ** d; const v = Math.round(x * f * 1e9) / 1e9; return (v >= 0 ? Math.ceil(v) : Math.floor(v)) / f; };
+const trunc = rdown;
 const abv   = x => Math.abs(x);
-const trunc = (x, decimals = 0) => {
-  const factor = Math.pow(10, decimals);
-  return Math.trunc(x * factor) / factor;
-};
 const sin   = x => Math.sin(x);
 const cos   = x => Math.cos(x);
 const exp   = x => Math.exp(x);
 
-function computeScores(LF, SD, ED, CAS) {
-  const scoreBad = exp(
+// Exponent of Score Bad. Score Good uses exactly the opposite exponent.
+function computeZ(LF, SD, ED, CAS) {
+  return (
     - 0.28498204610245   * LF
-    + 0.0492951793604829 * flr(SD) * cel(ED)
-    + 0.0970097696630778 * flr(ED) * flr(SD)
-    + 0.128618766194885  * flr(ED) * sin(SD)
-    + 0.0653571817634567 * cel(ED) * sin(SD)
     + 0.0765070170481534 * cos(CAS) * abv(CAS)
     + 0.054465763653058  * cos(CAS) ** 2
     + 0.0268669860891494 * abv(CAS) ** 2
-    - 0.163378033898795  * flr(SD)
-    + 0.683801733179355  * flr(ED)
-    - 0.462183083454566  * cel(CAS)
-    + 0.347471488708366  * cel(ED)
+    - 0.163378033898795  * rdown(SD)
+    - 0.462183083454566  * rup(CAS)
     - 0.216612009454207  * sin(SD)
     + 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
     - 0.328822044880203  * abv(CAS)
-    - 0.834671717861705  * trunc(-0.392849641282171 * LF,1)
+    - 0.834671717861705  * trunc(-0.392849641282171 * LF)
+    // recalibrated epinephrine terms
+    + 0.5742840863       * rdown(ED)
+    - 0.0171921303       * rdown(ED) * rdown(SD)
   );
+}
 
-  const scoreGood = exp(
-    + 0.28498204610245   * LF
-    - 0.0492951793604829 * flr(SD) * cel(ED)
-    - 0.0970097696630778 * flr(ED) * flr(SD)
-    - 0.128618766194885  * flr(ED) * sin(SD)
-    - 0.0653571817634567 * cel(ED) * sin(SD)
-    - 0.0765070170481534 * cos(CAS) * abv(CAS)
-    - 0.054465763653058  * cos(CAS) ** 2
-    - 0.0268669860891494 * abv(CAS) ** 2
-    + 0.163378033898795  * flr(SD)
-    - 0.683801733179355  * flr(ED)
-    + 0.462183083454566  * cel(CAS)
-    - 0.347471488708366  * cel(ED)
-    + 0.216612009454207  * sin(SD)
-    - 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
-    + 0.328822044880203  * abv(CAS)
-    + 0.834671717861705  * trunc(-0.392849641282171 * LF,1)
-  );
-
-  return { scoreBad, scoreGood };
+function computeScores(LF, SD, ED, CAS) {
+  const z = computeZ(LF, SD, ED, CAS);
+  return { scoreBad: exp(z), scoreGood: exp(-z) };
 }
 
 function calculate() {
   const LF  = parseFloat(document.getElementById('lf').value);
-  const SD  = parseFloat(document.getElementById('shock').value);
+  const nShocks = parseInt(document.getElementById('shock').value, 10);
+  const SD  = nShocks;   // number of shocks, as in the training data
   const ED  = parseFloat(document.getElementById('epi').value);
   const CAS = parseFloat(document.getElementById('site').value);
 
@@ -922,9 +900,9 @@ function calculate() {
 
   grid.innerHTML = `
     <div class="breakdown-item"><div class="lbl">Low Flow</div><div class="val">${LF} min</div></div>
-    <div class="breakdown-item"><div class="lbl">Shock Delivery</div><div class="val">${SD.toFixed(1)}</div></div>
+    <div class="breakdown-item"><div class="lbl">Shock Delivery</div><div class="val">${nShocks}</div></div>
     <div class="breakdown-item"><div class="lbl">Epinephrine Dose</div><div class="val">${ED.toFixed(1)} mg</div></div>
-    <div class="breakdown-item"><div class="lbl">Cardiac Arrest Site</div><div class="val">${['Street','Public facilities','Home'][CAS]}</div></div>
+    <div class="breakdown-item"><div class="lbl">Cardiac Arrest Site</div><div class="val">${document.getElementById('site').selectedOptions[0].textContent}</div></div>
     <div class="breakdown-item"><div class="lbl">Score<sub>Good</sub></div><div class="val">${scoreGood.toFixed(6)}</div></div>
     <div class="breakdown-item"><div class="lbl">Score<sub>Bad</sub></div><div class="val">${scoreBad.toFixed(6)}</div></div>
     <div class="breakdown-item" style="grid-column:1/-1;border-color:var(--accent);background:rgba(56,189,248,0.05)">
