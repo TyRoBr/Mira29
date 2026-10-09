@@ -604,7 +604,7 @@
                 <div class="input-desc">Low Flow duration time</div>
                 <div class="slider-value" id="lf-display">0 min</div>
                 <div class="slider-wrapper">
-                    <input type="range" id="lf" min="0" max="50" step="1" value="0"
+                    <input type="range" id="lf" min="0" max="40" step="1" value="0"
                             oninput="document.getElementById('lf-display').textContent = this.value + ' min'">
                 </div>
                 <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span><span>25</span><span>30</span><span>35</span><span>40</span><span>45</span><span>50</span></div>
@@ -617,7 +617,7 @@
                 <div class="input-desc">Number of defibrillations delivered delivered during resuscitation</div>
                 <div class="slider-value" id="shock-display">0 shock</div>
                 <div class="slider-wrapper">
-                    <input type="range" id="shock" min="0" max="20" step="1" value="0"
+                    <input type="range" id="shock" min="0" max="10" step="1" value="0"
                            oninput="document.getElementById('shock-display').textContent = this.value + (this.value > 1 ? ' shocks' : ' shock')">
                 </div>
                 <div class="slider-labels"><span>0</span><span>5</span><span>10</span><span>15</span><span>20</span></div>
@@ -704,7 +704,6 @@
   <span class="op">+</span> <span class="coeff">0.34645182430784  </span> <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> |<span class="var">CAS</span>|)
   <span class="op">−</span> <span class="coeff">0.328822044880203 </span> <span class="op">×</span> |<span class="var">CAS</span>|
   <span class="op">−</span> <span class="coeff">0.834671717861705 </span> <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
-  <span class="op">// recalibrated epinephrine terms</span>
   <span class="op">+</span> <span class="coeff">0.5742840863      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>)
   <span class="op">−</span> <span class="coeff">0.0171921303      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
 <span class="op">)</span></pre>
@@ -723,7 +722,6 @@
   <span class="op">−</span> <span class="coeff">0.34645182430784  </span> <span class="op">×</span> <span class="func">cos</span>(<span class="coeff">0.587426565957122</span> <span class="op">×</span> <span class="func">cos</span>(<span class="var">CAS</span>) <span class="op">+</span> <span class="coeff">0.412573434042878</span> <span class="op">×</span> |<span class="var">CAS</span>|)
   <span class="op">+</span> <span class="coeff">0.328822044880203 </span> <span class="op">×</span> |<span class="var">CAS</span>|
   <span class="op">+</span> <span class="coeff">0.834671717861705 </span> <span class="op">×</span> <span class="func">trunc</span>(<span class="op">−</span><span class="coeff">0.392849641282171</span> <span class="op">×</span> <span class="var">LF</span>)
-  <span class="op">// recalibrated epinephrine terms</span>
   <span class="op">−</span> <span class="coeff">0.5742840863      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>)
   <span class="op">+</span> <span class="coeff">0.0171921303      </span> <span class="op">×</span> <span class="func">rdown</span>(<span class="var">ED</span>) <span class="op">×</span> <span class="func">rdown</span>(<span class="var">SD</span>)
 <span class="op">)</span></pre>
@@ -822,7 +820,6 @@ function computeZ(LF, SD, ED, CAS) {
     + 0.34645182430784   * cos(0.587426565957122 * cos(CAS) + 0.412573434042878 * abv(CAS))
     - 0.328822044880203  * abv(CAS)
     - 0.834671717861705  * trunc(-0.392849641282171 * LF)
-    // recalibrated epinephrine terms
     + 0.5742840863       * rdown(ED)
     - 0.0171921303       * rdown(ED) * rdown(SD)
   );
@@ -836,7 +833,7 @@ function computeScores(LF, SD, ED, CAS) {
 function calculate() {
   const LF  = parseFloat(document.getElementById('lf').value);
   const nShocks = parseInt(document.getElementById('shock').value, 10);
-  const SD  = nShocks;   // number of shocks, as in the training data
+  const SD  = nShocks;
   const ED  = parseFloat(document.getElementById('epi').value);
   const CAS = parseFloat(document.getElementById('site').value);
 
